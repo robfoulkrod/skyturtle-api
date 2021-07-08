@@ -11,7 +11,7 @@ resources:
 variables:
 
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '80c9ce24-c180-4d78-9a8a-146c7d039493'
+  dockerRegistryServiceConnection: 'turtleregistry'
   imageRepository: 'turtleapi'
   containerRegistry: 'turtle.azurecr.io'
   dockerfilePath: '**/Dockerfile'
