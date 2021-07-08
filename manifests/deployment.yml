@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: turtleapi 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: turtleapi
+  template:
+    metadata:
+      labels:
+        app: turtleapi 
+    spec:
+      containers:
+        - name: turtleapi 
+          image: turtle.azurecr.io/turtleapi
+          ports:
+          - containerPort: 80
