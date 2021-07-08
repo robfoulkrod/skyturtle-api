@@ -56,7 +56,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'turtleapi-3703.development'
+    environment: 'turtle.development'
     strategy:
       runOnce:
         deploy:
@@ -86,7 +86,7 @@ stages:
     pool:
       vmImage: $(vmImageName)
 
-    environment: 'turtleapi-3703.$(k8sNamespaceForPR)'
+    environment: 'turtle.$(k8sNamespaceForPR)'
     strategy:
       runOnce:
         deploy:
