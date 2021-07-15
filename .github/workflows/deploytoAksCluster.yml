@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: k8practice.azurecr.io
+        username: ${{ secrets.acr_k8practice_username }}
+        password: ${{ secrets.acr_k8practice_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t k8practice.azurecr.io/k8:${{ github.sha }} --label dockerfile-path=Dockerfile
+        docker push k8practice.azurecr.io/k8:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_k8_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep skytut | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace skytut`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: skytut
+        container-registry-url: k8practice.azurecr.io
+        container-registry-username: ${{ secrets.acr_k8practice_username }}
+        container-registry-password: ${{ secrets.acr_k8practice_password }}
+        secret-name: k8dockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: skytut
+        manifests: |
+          manifests/deployment-1.yml
+          manifests/service-1.yml
+        images: |
+          k8practice.azurecr.io/k8:${{ github.sha }}
+        imagepullsecrets: |
+          k8dockerauth
